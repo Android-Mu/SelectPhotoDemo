@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#4546ee</color>
+    <color name="colorPrimaryDark">#4546ee</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="white" >#ffffff</color>
+    <color name="bg_floder_press">#bdbdbd</color>
+</resources>
