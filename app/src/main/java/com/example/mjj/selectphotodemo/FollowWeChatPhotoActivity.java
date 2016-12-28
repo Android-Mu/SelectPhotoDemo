@@ -66,7 +66,7 @@ public class FollowWeChatPhotoActivity extends AppCompatActivity {
                 if (i == mResults.size() - 1 || i == Bimp.tempSelectBitmap.size()) {
                     Intent intent = new Intent(FollowWeChatPhotoActivity.this, PhotoPickerActivity.class);
                     intent.putExtra(PhotoPickerActivity.EXTRA_SHOW_CAMERA, true);
-                    intent.putExtra(PhotoPickerActivity.EXTRA_SELECT_MODE, PhotoPickerActivity.MODE_MULTI);
+                    intent.putExtra(PhotoPickerActivity.EXTRA_SELECT_MODE, PhotoPickerActivity.MODE_SINGLE);
                     intent.putExtra(PhotoPickerActivity.EXTRA_MAX_MUN, PhotoPickerActivity.DEFAULT_NUM);
                     // 总共选择的图片数量
                     intent.putExtra(PhotoPickerActivity.TOTAL_MAX_MUN, Bimp.tempSelectBitmap.size());
