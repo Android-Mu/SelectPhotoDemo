@@ -1,16 +1,20 @@
 package com.example.mjj.selectphotodemo;
 
+import android.Manifest;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -28,6 +32,7 @@ import com.example.mjj.selectphotodemo.adapters.FolderAdapter;
 import com.example.mjj.selectphotodemo.adapters.PhotoAdapter;
 import com.example.mjj.selectphotodemo.beans.Photo;
 import com.example.mjj.selectphotodemo.beans.PhotoFolder;
+import com.example.mjj.selectphotodemo.utils.MPermissionUtils;
 import com.example.mjj.selectphotodemo.utils.OtherUtils;
 import com.example.mjj.selectphotodemo.utils.PhotoUtils;
 
@@ -130,7 +135,25 @@ public class PhotoPickerActivity extends AppCompatActivity implements PhotoAdapt
             Toast.makeText(this, "No SD card!", Toast.LENGTH_SHORT).show();
             return;
         }
-        getPhotosTask.execute();
+
+        // 检查权限
+//        checkPerm();
+        MPermissionUtils.requestPermissionsResult(PhotoPickerActivity.this, 1,
+                new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_EXTERNAL_STORAGE},
+                new MPermissionUtils.OnPermissionListener() {
+                    @Override
+                    public void onPermissionGranted() {
+                        getPhotosTask.execute();
+                    }
+
+                    @Override
+                    public void onPermissionDenied() {
+                        MPermissionUtils.showTipsDialog(PhotoPickerActivity.this);
+                    }
+                });
+
+//        getPhotosTask.execute();
     }
 
     private void initView() {
@@ -172,6 +195,65 @@ public class PhotoPickerActivity extends AppCompatActivity implements PhotoAdapt
                 }
             });
         }
+    }
+
+    /**
+     * Android6.0检测权限
+     */
+    private void checkPerm() {
+        /**1.在AndroidManifest文件中添加需要的权限。
+         *
+         * 2.检查权限
+         *这里涉及到一个API，ContextCompat.checkSelfPermission，
+         * 主要用于检测某个权限是否已经被授予，方法返回值为PackageManager.PERMISSION_DENIED
+         * 或者PackageManager.PERMISSION_GRANTED。当返回DENIED就需要进行申请授权了。
+         * */
+        if (ContextCompat.checkSelfPermission(PhotoPickerActivity.this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            //权限没有被授予
+
+            /**3.申请授权
+             * @param
+             *  @param activity The target activity.（Activity|Fragment、）
+             * @param permissions The requested permissions.（权限字符串数组）
+             * @param requestCode Application specific request code to match with a result（int型申请码）
+             *    reported to {@link OnRequestPermissionsResultCallback#onRequestPermissionsResult(
+             *int, String[], int[])}.
+             * */
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.CAMERA},
+                    1001);
+        } else {
+            //权限被授予 直接操作
+//            choosePhoto();
+            getPhotosTask.execute();
+        }
+    }
+
+    /***
+     * 4.处理权限申请回调
+     */
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+//        if (requestCode == 1001) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+//                    && grantResults[1] == PackageManager.PERMISSION_GRANTED
+//                    && grantResults[2] == PackageManager.PERMISSION_GRANTED) {
+//                //权限被授予
+//                Toast.makeText(PhotoPickerActivity.this, "Permission success", Toast.LENGTH_SHORT).show();
+//                getPhotosTask.execute();
+//            } else {
+//                // Permission Denied
+//                Toast.makeText(PhotoPickerActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+//            }
+//            return;
+//        }
+
+        MPermissionUtils.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     private void getPhotosSuccess() {
